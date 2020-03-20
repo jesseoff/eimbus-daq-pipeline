@@ -29,7 +29,9 @@ insure there will never be partial blocks of samples in the output stream.
 The 32-bit register at 0x5000401c is the ADC configuration register. Changing
 the value here results in resetting the ADC and sending a new configuration
 register as documented in the particular ADC's data sheet.  Until/Unless this register
-is written, the default ADC datasheet values are used and the sample rate is at maximum.
+is written, the default ADC datasheet values are used and the sample period is at maximum.
+On the high speed ADC option, bits 31-16 is a 16-bit number which is subtracted from 33000
+to represent the number of 99Mhz clock periods divided by 2 inbetween each sample.
 
 For high bandwidth FPGA to CPU data acquisition pipes, it may be necessary to
 set realtime priorities on the zpub process (or low/idle priorities on
