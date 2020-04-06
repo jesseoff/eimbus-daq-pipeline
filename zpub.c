@@ -15,7 +15,7 @@ int main(int argc, char **argv) {
 	uint32_t cur, last, sz;
 
 	if (ddc316hz || cfgreg) {
-		uint32_t reg = strtoul(cfgreg, NULL, 0);
+		uint32_t reg = cfgreg ? strtoul(cfgreg, NULL, 0) : 0;
 		uint32_t hz = strtoul(ddc316hz, NULL, 0);
 		if (hz >= 3000 && hz <= 100000) {
 			uint32_t period_in_99mhz_clks = 99000000 / (hz / 2);
