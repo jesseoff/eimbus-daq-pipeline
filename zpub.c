@@ -11,7 +11,7 @@ int main(int argc, char **argv) {
 	const char *ddc316hz = getenv("DDC316_HZ"); /* Sample frequency of high speed ADCs */
 	const char *cfgreg = getenv("ADCCFG"); /* 16-bit config register sent to ADC itself */
 	int fd = open("/dev/mem", O_RDWR|O_SYNC);
-	uint8_t *mm = mmap(NULL, 0x100000, PROT_READ|PROT_WRITE, MAP_PRIVATE, fd, 0x50000000);
+	uint8_t *mm = mmap(NULL, 0x100000, PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x50000000);
 	uint32_t cur, last, sz;
 
 	if (ddc316hz || cfgreg) {
