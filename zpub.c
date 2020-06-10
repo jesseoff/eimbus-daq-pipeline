@@ -8,21 +8,14 @@ extern void xmemcpy(void *dst, void *src, size_t n);
 
 int main(int argc, char **argv) {
 	const char *endpoint = getenv("ZPUB_ENDPOINT");
-	const char *ddc316hz = getenv("DDC316_HZ"); /* Sample frequency of high speed ADCs */
-	const char *cfgreg = getenv("ADCCFG"); /* 16-bit config register sent to ADC itself */
+	const char *adcrate = getenv("ADCRATE"); /* Sample frequency in HZ */
+	const char *adccfg= getenv("ADCCFG"); /* 16-bit config register sent to ADC itself */
 	int fd = open("/dev/mem", O_RDWR|O_SYNC);
 	uint8_t *mm = mmap(NULL, 0x100000, PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x50000000);
 	uint32_t cur, last, sz;
 
-	if (ddc316hz || cfgreg) {
-		uint32_t reg = cfgreg ? strtoul(cfgreg, NULL, 0) : 0;
-		uint32_t hz = ddc316hz ? strtoul(ddc316hz, NULL, 0) : 0;
-		if (hz >= 3000 && hz <= 100000) {
-			uint32_t period_in_99mhz_clks = 99000000 / (hz / 2);
-			reg |= (33000 - period_in_99mhz_clks)<<16;
-		}
-		*(uint32_t *)(mm + 0x401c) = reg;
-	}
+	if (adccfg) *(uint32_t *)(mm + 0x401c) = strtoul(adccfg, NULL, 0);
+	if (adcrate) *(uint32_t *)(mm + 0x4020) = 99000000 / strtoul(adccfg, NULL, 0);
 
 	if (endpoint) { 
 	        zsock_t *sk = zsock_new_pub(endpoint);
