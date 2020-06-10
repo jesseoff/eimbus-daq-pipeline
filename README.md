@@ -45,6 +45,22 @@ ADCCFG=0x380 ./zpub      # 50pC full-scale range
 ADCCFG=0x180 ./zpub      # 12.5pC full-scale range
 ```
 
+Or, directly to the FPGA register, in C:
+
+```c
+/* Setting should be 0 - 7, for 12.5, 50, 100, 150, 200, 250, 300, and 350pC, respectively */
+void ddc232_range(int setting) { 
+        int fd = open("/dev/mem", O_RDWR|O_SYNC);
+        uint8_t *mm = mmap(NULL, 0x100000, PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x50000000);
+
+        assert (setting >= 0 && setting < 8);
+        assert (fd != -1 && mm != MAP_FAILED);
+        *(uint32_t *)(mm + 0x401c) = 0x180 | (setting<<9);
+        munmap(mm, 0x100000);
+        close(fd);
+}
+```
+
 For high bandwidth FPGA to CPU data acquisition pipes, it may be necessary to
 set realtime priorities on the zpub process (or low/idle priorities on
 everything else) if the CPU is intended to be run overloaded.
