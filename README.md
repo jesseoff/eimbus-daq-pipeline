@@ -68,7 +68,7 @@ void adc_rate(int hz) {
         int fd = open("/dev/mem", O_RDWR|O_SYNC);
         uint8_t *mm = mmap(NULL, 0x100000, PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x50000000);
 
-        assert (hz > 0 && hz < 100000);
+        assert (hz > 0 && hz <= 100000);
         assert (fd != -1 && mm != MAP_FAILED);
         *(uint32_t *)(mm + 0x4020) = 99000000 / hz;
         munmap(mm, 0x100000);
