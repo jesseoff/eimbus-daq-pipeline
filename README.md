@@ -31,7 +31,19 @@ the value here results in resetting the ADC and sending a new configuration
 register as documented in the particular ADC's data sheet.  Until/Unless this register
 is written, the default ADC datasheet values are used and the sample period is at maximum.
 On the high speed ADC option, bits 31-16 is a 16-bit number which is subtracted from 33000
-to represent the number of 99Mhz clock periods divided by 2 inbetween each sample.
+to represent the number of 99Mhz clock periods divided by 2 inbetween each sample.  The *zpub* program takes an environment variable `ADCCFG` that can be used to set this register before
+starting ADC sample streaming.  e.g., for the DDC232 ADC (32 channel, 20bit) chip:
+
+```shell
+ADCCFG=0xf80 ./zpub      # 350pC full-scale range
+ADCCFG=0xd80 ./zpub      # 300pC full-scale range
+ADCCFG=0xb80 ./zpub      # 250pC full-scale range
+ADCCFG=0x980 ./zpub      # 200pC full-scale range
+ADCCFG=0x780 ./zpub      # 150pC full-scale range
+ADCCFG=0x580 ./zpub      # 100pC full-scale range
+ADCCFG=0x380 ./zpub      # 50pC full-scale range
+ADCCFG=0x180 ./zpub      # 12.5pC full-scale range
+```
 
 For high bandwidth FPGA to CPU data acquisition pipes, it may be necessary to
 set realtime priorities on the zpub process (or low/idle priorities on
