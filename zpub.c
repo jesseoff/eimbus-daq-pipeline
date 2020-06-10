@@ -15,7 +15,7 @@ int main(int argc, char **argv) {
 	uint32_t cur, last, sz;
 
 	if (adccfg) *(uint32_t *)(mm + 0x401c) = strtoul(adccfg, NULL, 0);
-	if (adcrate) *(uint32_t *)(mm + 0x4020) = 99000000 / strtoul(adccfg, NULL, 0);
+	if (adcrate) *(uint32_t *)(mm + 0x4020) = 99000000 / strtoul(adcrate, NULL, 0);
 
 	if (endpoint) { 
 	        zsock_t *sk = zsock_new_pub(endpoint);
