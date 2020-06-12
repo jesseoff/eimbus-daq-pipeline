@@ -26,16 +26,22 @@ int main(int argc, char **argv) {
 			uint8_t *d;
 		       
 			cur = *(uint16_t *)(mm + 0x404c);
-			if (last > cur) sz = (cur + 0x10000) - last;
-			else if (last == cur) {
+			if (last == cur) {
 				usleep(1000);
 				continue;
-			} else sz = cur - last;
+			} else sz = (cur - last) & 0xffff;
 
 			zf = zframe_new(NULL, sz);
 			if (!zf) continue;
 			d = zframe_data(zf);
-			xmemcpy(d, mm + 0x8000 + last, sz);
+			if (cur > last)
+				xmemcpy(d, mm + 0x8000 + last, sz);
+			else {
+				uint32_t sz0 = 0x10000 - last;
+				uint32_t sz1 = sz - sz0;
+				xmemcpy(d, mm + 0x8000 + last, sz0);
+				xmemcpy(d + sz0, mm + 0x8000, sz1);
+			}
 			
 			zframe_send(&zf, sk, 0);
 			last = cur;
