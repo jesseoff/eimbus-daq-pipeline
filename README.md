@@ -29,9 +29,8 @@ insure there will never be partial blocks of samples in the output stream.
 The 32-bit register at 0x5000401c is the ADC configuration register. Changing
 the value here results in resetting the ADC and sending a new configuration
 register as documented in the particular ADC's data sheet.  Until/Unless this register
-is written, the default ADC datasheet values are used and the sample period is at maximum.
-On the high speed ADC option, bits 31-16 is a 16-bit number which is subtracted from 33000
-to represent the number of 99Mhz clock periods divided by 2 inbetween each sample.  The *zpub* program takes an environment variable `ADCCFG` that can be used to set this register before
+is written, the default ADC datasheet values are used. The *zpub* program takes an 
+environment variable `ADCCFG` that can be used to set this register before
 starting ADC sample streaming.  e.g., for the DDC232 ADC (32 channel, 20bit) chip:
 
 ```shell
@@ -56,6 +55,22 @@ void ddc232_range(int setting) {
         assert (setting >= 0 && setting < 8);
         assert (fd != -1 && mm != MAP_FAILED);
         *(uint32_t *)(mm + 0x401c) = 0x180 | (setting<<9);
+        munmap(mm, 0x100000);
+        close(fd);
+}
+```
+*zpub.c* also takes an environment variable `ADCRATE` which represents the sample rate in integer
+hz.  This is sent to the 32-bit FPGA register at address 0x50004020 as the number of 99Mhz periods
+to wait inbetween samples.  A Sample C manipulation would be:
+
+```c
+void adc_rate(int hz) { 
+        int fd = open("/dev/mem", O_RDWR|O_SYNC);
+        uint8_t *mm = mmap(NULL, 0x100000, PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x50000000);
+
+        assert (hz > 0 && hz <= 100000);
+        assert (fd != -1 && mm != MAP_FAILED);
+        *(uint32_t *)(mm + 0x4020) = 99000000 / hz;
         munmap(mm, 0x100000);
         close(fd);
 }
