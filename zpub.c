@@ -31,8 +31,16 @@ int main(int argc, char **argv) {
 				continue;
 			} else sz = (cur - last) & 0xffff;
 
+			if (sz < 0x2000) {
+				usleep(1000);
+				continue;
+			}
+
 			zf = zframe_new(NULL, sz);
-			if (!zf) continue;
+			if (!zf) {
+				last = cur;
+				continue;
+			}
 			d = zframe_data(zf);
 			if (cur > last)
 				xmemcpy(d, mm + 0x8000 + last, sz);
@@ -43,7 +51,7 @@ int main(int argc, char **argv) {
 				xmemcpy(d + sz0, mm + 0x8000, sz1);
 			}
 			
-			zframe_send(&zf, sk, 0);
+			zframe_send(&zf, sk, ZFRAME_DONTWAIT);
 			last = cur;
 		}
 	} else return 1;
